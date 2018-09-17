@@ -74,9 +74,20 @@ class Client<RpcServiceMethodConcept, ::grpc::internal::RpcMethod::NORMAL_RPC> {
       deadline = std::chrono::system_clock::now() + timeout_.value();
     }
     client_context_ = ResetContext(deadline);
+    if (!deadline.has_value()) {
+      deadline = std::chrono::system_clock::now() +
+        std::chrono::seconds(10);
+    }
     bool result = RetryWithStrategy(
         retry_strategy_,
-        [this, &request, &internal_status] {
+        [this, &request, &internal_status, deadline] {
+          if (channel_->GetState(false /* try_to_connect */) !=
+              grpc_connectivity_state::GRPC_CHANNEL_READY) {
+            LOG(INFO) << "Trying to re-connect channel...";
+            if (!channel_->WaitForConnected(deadline.value())) {
+              return ::grpc::Status(::grpc::StatusCode::UNAVAILABLE, "Failed to re-connect channel.");
+            }
+          }
           WriteImpl(request, &internal_status);
           return internal_status;
         },
