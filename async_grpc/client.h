@@ -85,7 +85,7 @@ class Client<RpcServiceMethodConcept, ::grpc::internal::RpcMethod::NORMAL_RPC> {
               grpc_connectivity_state::GRPC_CHANNEL_READY) {
             LOG(INFO) << "Trying to re-connect channel...";
             if (!channel_->WaitForConnected(deadline.value())) {
-              return ::grpc::Status(::grpc::StatusCode::UNAVAILABLE, "Failed to re-connect channel.");
+              return ::grpc::Status(::grpc::StatusCode::DEADLINE_EXCEEDED, "Failed to re-connect channel.");
             }
           }
           WriteImpl(request, &internal_status);
