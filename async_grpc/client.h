@@ -74,13 +74,33 @@ class Client<RpcServiceMethodConcept, ::grpc::internal::RpcMethod::NORMAL_RPC> {
       deadline = std::chrono::system_clock::now() + timeout_.value();
     }
     client_context_ = ResetContext(deadline);
+    if (!deadline.has_value()) {
+      deadline = std::chrono::system_clock::now() +
+        std::chrono::seconds(10);
+    }
     bool result = RetryWithStrategy(
         retry_strategy_,
-        [this, &request, &internal_status] {
+        [this, &request, &internal_status, deadline] {
+          client_context_ = ResetContext(deadline);
+//          if (channel_->GetState(true /* try_to_connect */) !=
+//              grpc_connectivity_state::GRPC_CHANNEL_READY) {
+            LOG(INFO) << "Trying to re-connect channel...";
+            if (!channel_->WaitForConnected(deadline.value())) {
+              return ::grpc::Status(::grpc::StatusCode::DEADLINE_EXCEEDED, "Failed to re-connect channel.");
+            }
+//          }
+          LOG(INFO) << channel_->GetState(true);
           WriteImpl(request, &internal_status);
+          LOG(INFO) << internal_status.error_code() << " " << internal_status.error_message();
           return internal_status;
         },
-        [this, deadline] { client_context_ = ResetContext(deadline); });
+        [this, deadline] {
+        client_context_ = ResetContext(deadline);
+            LOG(INFO) << "Trying to re-connect channel...2";
+            if (!channel_->WaitForConnected(deadline.value())) {
+                LOG(ERROR) << "FUCK";
+            }
+        });
     if (status != nullptr) {
       *status = internal_status;
     }
@@ -114,8 +134,8 @@ class Client<RpcServiceMethodConcept, ::grpc::internal::RpcMethod::NORMAL_RPC> {
 
   std::shared_ptr<::grpc::Channel> channel_;
   std::unique_ptr<::grpc::ClientContext> client_context_;
-  const std::string rpc_method_name_;
-  const ::grpc::internal::RpcMethod rpc_method_;
+  std::string rpc_method_name_;
+  ::grpc::internal::RpcMethod rpc_method_;
   common::optional<common::Duration> timeout_;
 
   ResponseType response_;
