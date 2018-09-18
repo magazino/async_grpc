@@ -103,6 +103,13 @@ Server::Server(const Options& options) : options_(options) {
   server_builder_.AddListeningPort(options_.server_address,
                                    ::grpc::InsecureServerCredentials());
 
+server_builder_.AddChannelArgument(GRPC_ARG_KEEPALIVE_TIME_MS, 1000);
+server_builder_.AddChannelArgument(GRPC_ARG_KEEPALIVE_TIMEOUT_MS, 5000);
+//server_builder_.AddChannelArgument(GRPC_ARG_HTTP2_BDP_PROBE, 1);
+server_builder_.AddChannelArgument(GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_CALLS, 1);
+server_builder_.AddChannelArgument(GRPC_ARG_HTTP2_MIN_RECV_PING_INTERVAL_WITHOUT_DATA_MS, 100);
+server_builder_.AddChannelArgument(GRPC_ARG_HTTP2_MIN_SENT_PING_INTERVAL_WITHOUT_DATA_MS, 500);
+
   // Set max message sizes.
   server_builder_.SetMaxReceiveMessageSize(options.max_receive_message_size);
   server_builder_.SetMaxSendMessageSize(options.max_send_message_size);
