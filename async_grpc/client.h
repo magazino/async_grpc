@@ -81,26 +81,32 @@ class Client<RpcServiceMethodConcept, ::grpc::internal::RpcMethod::NORMAL_RPC> {
     bool result = RetryWithStrategy(
         retry_strategy_,
         [this, &request, &internal_status, deadline] {
-          client_context_ = ResetContext(deadline);
-//          if (channel_->GetState(true /* try_to_connect */) !=
-//              grpc_connectivity_state::GRPC_CHANNEL_READY) {
+          //client_context_ = ResetContext(deadline);
+          if (channel_->GetState(true /* try_to_connect */) !=
+              grpc_connectivity_state::GRPC_CHANNEL_READY) {
             LOG(INFO) << "Trying to re-connect channel...";
             if (!channel_->WaitForConnected(deadline.value())) {
-              return ::grpc::Status(::grpc::StatusCode::DEADLINE_EXCEEDED, "Failed to re-connect channel.");
+              return ::grpc::Status(::grpc::StatusCode::DEADLINE_EXCEEDED,
+                                    "Failed to re-connect channel.");
+            } else {
+              LOG(INFO) << "Channel successfully reconnected.";
             }
-//          }
+          }
           LOG(INFO) << channel_->GetState(true);
           WriteImpl(request, &internal_status);
           LOG(INFO) << internal_status.error_code() << " " << internal_status.error_message();
           return internal_status;
         },
-        [this, deadline] {
-        client_context_ = ResetContext(deadline);
-            LOG(INFO) << "Trying to re-connect channel...2";
-            if (!channel_->WaitForConnected(deadline.value())) {
-                LOG(ERROR) << "FUCK";
-            }
-        });
+        [this, deadline] { client_context_ = ResetContext(deadline); }
+        // },
+        // [this, deadline] {
+        // client_context_ = ResetContext(deadline);
+        //     LOG(INFO) << "Trying to re-connect channel...2";
+        //     if (!channel_->WaitForConnected(deadline.value())) {
+        //         LOG(ERROR) << "FUCK";
+        //     }
+        // }
+        );
     if (status != nullptr) {
       *status = internal_status;
     }
