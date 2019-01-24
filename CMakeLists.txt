@@ -28,6 +28,11 @@ enable_testing()
 find_package(GMock REQUIRED)
 find_package(Protobuf 3.0.0 REQUIRED)
 
+# TODO(MichaelGrupp): ros-melodic-grpc ships with its own /opt/ros/melodic/include/grpc/google/protobuf headers....
+# This messes up the build when mixed with the system protoc compiler. Quick patch:
+# https://github.com/magazino/catkin_grpc/commit/7ae1fbab18f522ba2835fdf37a4eebc8a1859ae5
+find_package(catkin REQUIRED COMPONENTS grpc)
+
 set(ALL_LIBRARY_HDRS
     async_grpc/async_client.h
     async_grpc/client.h
@@ -102,7 +107,8 @@ foreach(RELATIVEPATH ${ALL_TESTS})
   string(REPLACE "/" "." TEST_TARGET_NAME "${DIR}/${FILENAME}")
   google_test("${TEST_TARGET_NAME}" ${RELATIVEPATH})
   target_link_libraries(${TEST_TARGET_NAME} PUBLIC ${GMOCK_LIBRARY})
-  target_link_libraries("${TEST_TARGET_NAME}" PUBLIC grpc++)
+  # TODO(MichaelGrupp): ALL_GRPC_LIBS is from catkin_grpc
+  target_link_libraries("${TEST_TARGET_NAME}" PUBLIC ${ALL_GRPC_LIBS})
 endforeach()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glog)
@@ -115,7 +121,8 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PROTOBUF_LIBRARY} pthread)
 
 # TODO(cschuet): Write FindGRPC.cmake
-target_link_libraries(${PROJECT_NAME} PUBLIC grpc++)
+# TODO(MichaelGrupp): ALL_GRPC_LIBS is from catkin_grpc
+target_link_libraries(${PROJECT_NAME} PUBLIC ${ALL_GRPC_LIBS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
