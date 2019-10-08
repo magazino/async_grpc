@@ -107,8 +107,8 @@ foreach(RELATIVEPATH ${ALL_TESTS})
   string(REPLACE "/" "." TEST_TARGET_NAME "${DIR}/${FILENAME}")
   google_test("${TEST_TARGET_NAME}" ${RELATIVEPATH})
   target_link_libraries(${TEST_TARGET_NAME} PUBLIC ${GMOCK_LIBRARY})
-  # TODO(MichaelGrupp): ALL_GRPC_LIBS is from catkin_grpc
-  target_link_libraries("${TEST_TARGET_NAME}" PUBLIC ${ALL_GRPC_LIBS})
+  # TODO(MichaelGrupp): LIBGRPCPP is from catkin_grpc
+  target_link_libraries("${TEST_TARGET_NAME}" PUBLIC ${LIBGRPCPP})
 endforeach()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glog)
@@ -121,8 +121,8 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PROTOBUF_LIBRARY} pthread)
 
 # TODO(cschuet): Write FindGRPC.cmake
-# TODO(MichaelGrupp): ALL_GRPC_LIBS is from catkin_grpc
-target_link_libraries(${PROJECT_NAME} PUBLIC ${ALL_GRPC_LIBS})
+# TODO(MichaelGrupp): LIBGRPCPP is from catkin_grpc
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBGRPCPP})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
