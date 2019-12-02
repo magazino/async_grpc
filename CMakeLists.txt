@@ -16,6 +16,8 @@ cmake_minimum_required(VERSION 2.8.12)  # Ships with Ubuntu 14.04 (Trusty)
 
 project(async_grpc)
 
+find_package(PkgConfig REQUIRED) 
+
 set(ASYNC_GRPC_MAJOR_VERSION 0)
 set(ASYNC_GRPC_MINOR_VERSION 1)
 set(ASYNC_GRPC_PATCH_VERSION 0)
@@ -27,17 +29,37 @@ google_initialize_async_grpc_project()
 enable_testing()
 find_package(GMock REQUIRED)
 find_package(Protobuf 3.0.0 REQUIRED)
+pkg_search_module(GRPC REQUIRED grpc++)
+
+# TODO(MichaelGrupp): this might not work in all cases!
+# Ubuntu 18's gRPC 1.3 works, later/previous versions might not.
+# 1.10.0 is just the official requirement of this package.
+if (GRPC_VERSION VERSION_LESS 1.10.0)
+  message(WARNING "Building in gRPC compatibility mode.")
+  set(USE_OLD_GRPC_VERSION "yes")
+endif()
+if(${USE_OLD_GRPC_VERSION})
+  add_definitions(-DOLD_GRPC_VERSION)
+endif()
+
+# These can't be built with older versions, but are not needed in Cartographer.
+if(NOT ${USE_OLD_GRPC_VERSION})
+  set(ADDITIONAL_LIBRARY_HDRS
+      async_grpc/async_client.h
+      async_grpc/completion_queue_pool.h)
+  set(ADDITIONAL_LIBRARY_SRCS
+      async_grpc/completion_queue_pool.cc)
+endif()
 
 set(ALL_LIBRARY_HDRS
-    async_grpc/async_client.h
     async_grpc/client.h
+    async_grpc/common/compat.h
     async_grpc/common/blocking_queue.h
     async_grpc/common/make_unique.h
     async_grpc/common/mutex.h
     async_grpc/common/optional.h
     async_grpc/common/port.h
     async_grpc/common/time.h
-    async_grpc/completion_queue_pool.h
     async_grpc/completion_queue_thread.h
     async_grpc/event_queue_thread.h
     async_grpc/execution_context.h
@@ -51,17 +73,18 @@ set(ALL_LIBRARY_HDRS
     async_grpc/span.h
     async_grpc/testing/rpc_handler_test_server.h
     async_grpc/testing/rpc_handler_wrapper.h
-    async_grpc/type_traits.h)
+    async_grpc/type_traits.h
+    ${ADDITIONAL_LIBRARY_HDRS})
 
 set(ALL_LIBRARY_SRCS
     async_grpc/common/time.cc
-    async_grpc/completion_queue_pool.cc
     async_grpc/completion_queue_thread.cc
     async_grpc/event_queue_thread.cc
     async_grpc/retry.cc
     async_grpc/rpc.cc
     async_grpc/server.cc
-    async_grpc/service.cc)
+    async_grpc/service.cc
+    ${ADDITIONAL_LIBRARY_SRCS})
 
 set(ALL_TESTS
     async_grpc/client_test.cc

@@ -17,6 +17,7 @@
 #ifndef CPP_GRPC_CLIENT_H
 #define CPP_GRPC_CLIENT_H
 
+#include "async_grpc/common/compat.h"
 #include "async_grpc/common/optional.h"
 #include "async_grpc/retry.h"
 #include "async_grpc/rpc_handler_interface.h"

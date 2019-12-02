@@ -17,6 +17,7 @@
 #ifndef CPP_GRPC_RPC_HANDLER_INTERFACE_H_
 #define CPP_GRPC_RPC_HANDLER_INTERFACE_H_
 
+#include "async_grpc/common/compat.h"
 #include "async_grpc/common/make_unique.h"
 #include "async_grpc/execution_context.h"
 #include "async_grpc/span.h"

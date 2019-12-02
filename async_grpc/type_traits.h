@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <type_traits>
 
+#include "async_grpc/common/compat.h"
+
 // This helper allows us to stamp out traits structs which allow to check for
 // the existence of member functions.
 // Example:

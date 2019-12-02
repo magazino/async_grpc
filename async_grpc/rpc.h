@@ -22,6 +22,7 @@
 #include <unordered_set>
 
 #include "async_grpc/common/blocking_queue.h"
+#include "async_grpc/common/compat.h"
 #include "async_grpc/common/mutex.h"
 #include "async_grpc/execution_context.h"
 #include "async_grpc/rpc_handler_interface.h"

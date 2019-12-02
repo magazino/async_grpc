@@ -23,6 +23,7 @@
 #include <string>
 #include <thread>
 
+#include "async_grpc/common/compat.h"
 #include "async_grpc/common/make_unique.h"
 #include "async_grpc/completion_queue_thread.h"
 #include "async_grpc/event_queue_thread.h"

@@ -1,6 +1,7 @@
 #ifndef CPP_GRPC_RPC_SERVICE_METHOD_TRAITS_H
 #define CPP_GRPC_RPC_SERVICE_METHOD_TRAITS_H
 
+#include "async_grpc/common/compat.h"
 #include "async_grpc/type_traits.h"
 #include "google/protobuf/message.h"
 

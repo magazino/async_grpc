@@ -20,7 +20,9 @@
 #include <future>
 #include <thread>
 
+#ifndef OLD_GRPC_VERSION
 #include "async_grpc/async_client.h"
+#endif
 #include "async_grpc/client.h"
 #include "async_grpc/execution_context.h"
 #include "async_grpc/proto/math_service.pb.h"
@@ -186,7 +188,9 @@ class ServerTest : public ::testing::Test {
 
   void TearDown() override {
     server_->Shutdown();
+#ifndef OLD_GRPC_VERSION
     CompletionQueuePool::Shutdown();
+#endif
   }
 
   std::unique_ptr<Server> server_;
@@ -276,6 +280,8 @@ TEST_F(ServerTest, RetryWithUnrecoverableError) {
   EXPECT_FALSE(client.Write(request));
 }
 
+#ifndef OLD_GRPC_VERSION
+
 TEST_F(ServerTest, AsyncClientUnary) {
   std::mutex m;
   std::condition_variable cv;
@@ -333,6 +339,8 @@ TEST_F(ServerTest, AsyncClientServerStreaming) {
   LOG(INFO) << "Waiting for responses...";
   cv.wait(lock, [&done] { return done; });
 }
+
+#endif  // #ifndef OLD_GRPC_VERSION
 
 }  // namespace
 }  // namespace async_grpc

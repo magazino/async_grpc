@@ -19,6 +19,7 @@
 
 #include <memory>
 
+#include "async_grpc/common/compat.h"
 #include "async_grpc/rpc_service_method_traits.h"
 #include "common/make_unique.h"
 #include "completion_queue_pool.h"
