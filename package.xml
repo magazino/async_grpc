@@ -31,7 +31,7 @@
   <build_depend>google-mock</build_depend>
 
   <depend>boost</depend>
-  <depend>grpc</depend>
+  <depend>libgrpc++-dev</depend>  <!-- See: magclone rosdep -->
   <depend>libgflags-dev</depend>
   <depend>libgoogle-glog-dev</depend>
   <depend>protobuf-dev</depend>
